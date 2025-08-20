@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Welcome } from '@/pages/Welcome';
 import { Auth } from '@/pages/Auth';
 import { Home } from '@/pages/Home';
+import { AddItem } from '@/pages/AddItem';
 import { useGuestStore } from '@/stores/guestStore';
 
 const queryClient = new QueryClient();
@@ -70,7 +71,14 @@ function AppRoutes() {
         }
       />
       {/* Placeholder routes for future implementation */}
-      <Route path="/add-item" element={<div className="min-h-screen bg-gradient-background flex items-center justify-center"><p>Add Item - Coming Soon</p></div>} />
+      <Route
+        path="/add-item"
+        element={
+          <ProtectedRoute>
+            <AddItem />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/expiring-soon" element={<div className="min-h-screen bg-gradient-background flex items-center justify-center"><p>Expiring Soon - Coming Soon</p></div>} />
       <Route path="/settings" element={<div className="min-h-screen bg-gradient-background flex items-center justify-center"><p>Settings - Coming Soon</p></div>} />
     </Routes>
