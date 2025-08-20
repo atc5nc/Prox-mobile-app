@@ -2,60 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* iOS-Inspired Design System - All colors MUST be HSL */
+/* Prox Design System - All colors MUST be HSL */
 
 @layer base {
   :root {
-    /* iOS Background Gradients */
-    --background: 220 100% 98%;
-    --foreground: 220 20% 10%;
+    /* Prox Background System */
+    --background: 120 14% 97%; /* #F7F9F7 */
+    --foreground: 0 0% 4%; /* #0B0B0B */
 
-    /* iOS Card System */
+    /* Prox Card System */
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 0 0% 4%;
 
-    /* iOS Blue System */
-    --primary: 215 100% 60%;
+    /* Prox Primary (Dark Green) System */
+    --primary: 151 55% 9%; /* #082517 */
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 215 100% 70%;
+    --primary-glow: 151 55% 15%;
 
-    /* iOS Secondary System */
-    --secondary: 220 60% 96%;
-    --secondary-foreground: 220 20% 10%;
+    /* Prox Secondary (Light Green) System */
+    --secondary: 120 20% 95%;
+    --secondary-foreground: 151 55% 9%;
 
-    /* iOS Muted System */
-    --muted: 220 30% 95%;
-    --muted-foreground: 220 15% 50%;
+    /* Prox Muted System */
+    --muted: 120 10% 93%;
+    --muted-foreground: 0 0% 40%;
 
-    /* iOS Accent System */
-    --accent: 215 100% 60%;
+    /* Prox Accent (Green) System */
+    --accent: 158 100% 30%; /* #009B63 */
     --accent-foreground: 0 0% 100%;
 
-    /* iOS Red System */
+    /* Prox Highlight Green */
+    --highlight: 122 100% 71%; /* #69FF6D */
+    --highlight-foreground: 151 55% 9%;
+
+    /* Destructive (Red) System */
     --destructive: 0 80% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* iOS Borders */
-    --border: 220 30% 90%;
-    --input: 220 30% 95%;
-    --ring: 215 100% 60%;
+    /* Prox Borders */
+    --border: 120 15% 85%;
+    --input: 120 15% 90%;
+    --ring: 158 100% 30%;
 
-    /* iOS Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(215 100% 60%), hsl(215 100% 70%));
-    --gradient-secondary: linear-gradient(135deg, hsl(220 60% 96%), hsl(220 30% 95%));
-    --gradient-background: linear-gradient(180deg, hsl(220 100% 98%), hsl(215 50% 95%));
+    /* Prox Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(151 55% 9%), hsl(158 100% 30%));
+    --gradient-secondary: linear-gradient(135deg, hsl(158 100% 30%), hsl(122 100% 71%));
+    --gradient-background: linear-gradient(180deg, hsl(120 14% 97%), hsl(120 20% 95%));
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.1));
 
-    /* iOS Shadows */
-    --shadow-soft: 0 2px 20px -2px hsl(220 30% 90%);
-    --shadow-medium: 0 8px 30px -8px hsl(220 50% 80%);
-    --shadow-glow: 0 0 40px hsl(215 100% 70% / 0.3);
+    /* Prox Shadows */
+    --shadow-soft: 0 2px 20px -2px hsl(151 55% 9% / 0.1);
+    --shadow-medium: 0 8px 30px -8px hsl(151 55% 9% / 0.15);
+    --shadow-glow: 0 0 40px hsl(158 100% 30% / 0.3);
 
-    /* iOS Animation */
-    --transition-ios: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    /* Prox Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --radius: 0.5rem;
@@ -78,33 +82,36 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 151 55% 5%;
+    --foreground: 120 14% 97%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 151 55% 7%;
+    --card-foreground: 120 14% 97%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 151 55% 7%;
+    --popover-foreground: 120 14% 97%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 158 100% 30%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 151 30% 15%;
+    --secondary-foreground: 120 14% 97%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 151 30% 12%;
+    --muted-foreground: 120 10% 70%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 122 100% 71%;
+    --accent-foreground: 151 55% 9%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --highlight: 122 100% 71%;
+    --highlight-foreground: 151 55% 9%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 151 30% 20%;
+    --input: 151 30% 15%;
+    --ring: 158 100% 30%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

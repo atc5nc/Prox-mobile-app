@@ -45,6 +45,10 @@ export default {
 					DEFAULT: 'hsl(var(--accent))',
 					foreground: 'hsl(var(--accent-foreground))'
 				},
+				highlight: {
+					DEFAULT: 'hsl(var(--highlight))',
+					foreground: 'hsl(var(--highlight-foreground))'
+				},
 				popover: {
 					DEFAULT: 'hsl(var(--popover))',
 					foreground: 'hsl(var(--popover-foreground))'
@@ -76,11 +80,11 @@ export default {
 				'glow': 'var(--shadow-glow)'
 			},
 			transitionTimingFunction: {
-				'ios': 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+				'smooth': 'cubic-bezier(0.25, 0.8, 0.25, 1)',
 				'bounce': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)'
 			},
 			borderRadius: {
-				'ios': '1.5rem',
+				'prox': '1rem',
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
