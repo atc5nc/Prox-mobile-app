@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ProxCard, ProxCardContent } from '@/components/ProxCard';
 import { ManualEntry } from '@/components/add-item/ManualEntry';
 import { PhotoUpload } from '@/components/add-item/PhotoUpload';
+import { ScanReceipt } from '@/components/add-item/ScanReceipt';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGuestStore } from '@/stores/guestStore';
 import { supabase } from '@/integrations/supabase/client';
@@ -95,22 +96,11 @@ export function AddItem() {
   }
 
   if (mode === 'receipt') {
-    // Placeholder for receipt scanning - will implement later
     return (
-      <div className="min-h-screen bg-gradient-background flex items-center justify-center">
-        <ProxCard className="max-w-md mx-4">
-          <ProxCardContent className="text-center py-12">
-            <Receipt className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium mb-2">Receipt Scanning</h3>
-            <p className="text-muted-foreground mb-6">
-              This feature will be available soon! For now, try manual entry or photo upload.
-            </p>
-            <Button onClick={handleBack} className="bg-accent hover:bg-accent/90">
-              Go Back
-            </Button>
-          </ProxCardContent>
-        </ProxCard>
-      </div>
+      <ScanReceipt
+        onBack={handleBack}
+        onSuccess={handleItemSuccess}
+      />
     );
   }
 
@@ -176,8 +166,7 @@ export function AddItem() {
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground mb-1">
-                Scan Receipt 
-                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded-full ml-2">Coming Soon</span>
+                Scan Receipt
               </h3>
               <p className="text-sm text-muted-foreground">
                 Scan your grocery receipt to automatically add items
