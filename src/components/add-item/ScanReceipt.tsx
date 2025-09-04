@@ -41,40 +41,60 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
   const processReceiptImage = async (imageData: string) => {
     setIsProcessing(true);
     try {
-      // Invoke Supabase edge function (public, JWT not required)
-      const { data, error } = await supabase.functions.invoke('scan-receipt', {
-        body: { image: imageData },
+      console.log('Starting receipt scan process...');
+
+      // Use the Supabase function endpoint from environment variable
+      const scanReceiptFunctionUrl = import.meta.env.VITE_SUPABASE_SCAN_RECEIPT_FUNCTION_URL;
+      if (!scanReceiptFunctionUrl) {
+        throw new Error('Scan receipt function URL is not set in environment variables (VITE_SUPABASE_SCAN_RECEIPT_FUNCTION_URL)');
+      }
+
+      const response = await fetch(scanReceiptFunctionUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndwZWxmb2ZuZXN0emJ0emlhZ2drIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUxMjA4NjUsImV4cCI6MjA3MDY5Njg2NX0.OXpV8sA9sBgm5iUKd19p5uprlyWc4CLYM_Nk1O1VpW4',
+        },
+        body: JSON.stringify({ image: imageData })
       });
 
-      if (error) {
-        throw new Error(error.message || 'Failed to scan receipt');
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Function error:', errorText);
+        throw new Error(`Function returned status ${response.status}: ${errorText}`);
       }
+
+      const data = await response.json();
+      console.log('Received data:', data);
 
       if (!data || !data.items) {
         throw new Error('No items found in the receipt');
       }
 
+      // Convert API response to our component format
       const items: ReceiptItem[] = data.items.map((item: any) => ({
         name: item.name,
         category: item.category,
         price: item.price,
         quantity: item.quantity,
-        confirmed: true,
+        confirmed: true, // Default to confirmed
       }));
 
       setExtractedItems(items);
       setIsConfirming(true);
 
       toast({
-        title: 'Receipt scanned!',
+        title: "Receipt scanned!",
         description: `Found ${items.length} items. Review and confirm below.`,
       });
-    } catch (err) {
-      console.error('Receipt scanning error:', err);
+    } catch (error) {
+      console.error('Receipt scanning error:', error);
       toast({
-        title: 'Scanning failed',
-        description: err instanceof Error ? err.message : 'Could not process the receipt. Please try again.',
-        variant: 'destructive',
+        title: "Scanning failed",
+        description: error instanceof Error ? error.message : "Could not process the receipt. Please try again.",
+        variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
@@ -83,12 +103,18 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
 
   const toggleItemConfirmation = (index: number) => {
     setExtractedItems(prev =>
-      prev.map((item, i) => (i === index ? { ...item, confirmed: !item.confirmed } : item))
+      prev.map((item, i) =>
+        i === index ? { ...item, confirmed: !item.confirmed } : item
+      )
     );
   };
 
   const updateItemName = (index: number, newName: string) => {
-    setExtractedItems(prev => prev.map((item, i) => (i === index ? { ...item, name: newName } : item)));
+    setExtractedItems(prev =>
+      prev.map((item, i) =>
+        i === index ? { ...item, name: newName } : item
+      )
+    );
   };
 
   const handleConfirmItems = async () => {
@@ -96,17 +122,18 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
 
     if (confirmedItems.length === 0) {
       toast({
-        title: 'No items selected',
-        description: 'Please confirm at least one item to add.',
-        variant: 'destructive',
+        title: "No items selected",
+        description: "Please confirm at least one item to add.",
+        variant: "destructive",
       });
       return;
     }
 
     try {
+      // Import the estimation service dynamically
       const { estimateDates } = await import('@/services/dateEstimation');
-      const today = new Date().toISOString().split('T')[0];
 
+      const today = new Date().toISOString().split('T')[0];
       const itemsWithEstimates = await Promise.all(
         confirmedItems.map(async (item) => {
           const estimates = await estimateDates({
@@ -127,7 +154,7 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
       );
 
       toast({
-        title: 'Items added!',
+        title: "Items added!",
         description: `${confirmedItems.length} items added from receipt.`,
       });
 
@@ -135,9 +162,9 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
     } catch (error) {
       console.error('Error adding items:', error);
       toast({
-        title: 'Error',
-        description: 'Failed to add items. Please try again.',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to add items. Please try again.",
+        variant: "destructive",
       });
     }
   };
@@ -157,7 +184,12 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
       <div className="bg-card/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-10">
         <div className="max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="icon" onClick={onBack} className="rounded-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              className="rounded-full"
+            >
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
@@ -172,92 +204,162 @@ export function ScanReceipt({ onBack, onSuccess }: ScanReceiptProps) {
 
       <div className="max-w-2xl mx-auto px-4 py-6">
         {!image ? (
-          // Upload Section
+          /* Upload Section */
           <ProxCard>
             <ProxCardContent className="text-center py-12">
               <div className="w-20 h-20 bg-accent/10 rounded-prox mx-auto mb-6 flex items-center justify-center">
                 <Receipt className="h-10 w-10 text-accent" />
               </div>
               <h3 className="text-lg font-medium mb-2">Scan Your Receipt</h3>
-              <p className="text-muted-foreground mb-6">Take a photo of your grocery receipt to automatically extract items</p>
+              <p className="text-muted-foreground mb-6">
+                Take a photo of your grocery receipt to automatically extract items
+              </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageSelect(file);
+                }}
+                className="hidden"
+              />
+
+              <div className="space-y-3">
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-accent hover:bg-accent/90"
+                  className="w-full h-12 bg-accent hover:bg-accent/90"
                 >
-                  <Upload className="h-4 w-4 mr-2" /> Upload Photo
+                  <Camera className="mr-2 h-5 w-5" />
+                  Take Photo
                 </Button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleImageSelect(file);
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    if (fileInputRef.current) {
+                      fileInputRef.current.removeAttribute('capture');
+                      fileInputRef.current.click();
+                    }
                   }}
-                />
+                  className="w-full h-12"
+                >
+                  <Upload className="mr-2 h-5 w-5" />
+                  Upload from Gallery
+                </Button>
               </div>
             </ProxCardContent>
           </ProxCard>
+        ) : isProcessing ? (
+          /* Processing Section */
+          <ProxCard>
+            <ProxCardContent className="text-center py-12">
+              <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <h3 className="text-lg font-medium mb-2">Scanning Receipt</h3>
+              <p className="text-muted-foreground">
+                Analyzing your receipt and extracting grocery items...
+              </p>
+            </ProxCardContent>
+          </ProxCard>
         ) : (
-          // Preview + Results Section
-          <div className="space-y-4">
+          /* Confirmation Section */
+          <div className="space-y-6">
+            {/* Image Preview */}
             <ProxCard>
               <ProxCardContent className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-medium">Receipt Preview</h3>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={resetUpload}>
-                      <X className="h-4 w-4 mr-1" /> Remove
-                    </Button>
-                    {!isConfirming && (
-                      <Button size="sm" className="bg-accent hover:bg-accent/90" disabled={isProcessing}>
-                        <Camera className="h-4 w-4 mr-1" /> {isProcessing ? 'Analyzing...' : 'Analyzing'}
-                      </Button>
-                    )}
-                  </div>
-                </div>
-                <div className="rounded-prox overflow-hidden border border-border/50 bg-muted/30">
-                  <img src={image} alt="Receipt preview" className="w-full max-h-[360px] object-contain" />
+                <div className="relative">
+                  <img
+                    src={image}
+                    alt="Uploaded receipt photo"
+                    className="w-full h-48 object-cover rounded-lg"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={resetUpload}
+                    className="absolute top-2 right-2 bg-card/80 hover:bg-card rounded-full"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
               </ProxCardContent>
             </ProxCard>
 
-            {isConfirming && (
-              <ProxCard>
-                <ProxCardHeader>
-                  <ProxCardTitle>Detected Items</ProxCardTitle>
-                </ProxCardHeader>
-                <ProxCardContent>
-                  <div className="space-y-3">
-                    {extractedItems.map((item, index) => (
-                      <div key={index} className={cn('flex items-center gap-3 p-3 rounded-prox border', item.confirmed ? 'border-border' : 'border-destructive/50')}> 
-                        <button
-                          onClick={() => toggleItemConfirmation(index)}
-                          className={cn('w-6 h-6 rounded flex items-center justify-center border transition-colors', item.confirmed ? 'bg-accent text-accent-foreground border-accent' : 'bg-background text-muted-foreground border-border')}
-                          aria-label={item.confirmed ? 'Confirmed' : 'Not confirmed'}
-                        >
-                          {item.confirmed ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
-                        </button>
+            {/* Items List */}
+            <ProxCard>
+              <ProxCardHeader>
+                <ProxCardTitle>Extracted Items ({extractedItems.filter(item => item.confirmed).length} selected)</ProxCardTitle>
+              </ProxCardHeader>
+              <ProxCardContent className="space-y-3">
+                {extractedItems.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No items were detected in the receipt. Please try with a clearer image.
+                  </div>
+                ) : (
+                  extractedItems.map((item, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "flex items-center space-x-3 p-3 rounded-lg border transition-all",
+                        item.confirmed
+                          ? "bg-accent/5 border-accent/20"
+                          : "bg-muted/30 border-border"
+                      )}
+                    >
+                      <button
+                        onClick={() => toggleItemConfirmation(index)}
+                        className={cn(
+                          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                          item.confirmed
+                            ? "bg-accent border-accent text-white"
+                            : "border-muted-foreground hover:border-accent"
+                        )}
+                      >
+                        {item.confirmed && <Check className="h-3 w-3" />}
+                      </button>
+
+                      <div className="flex-1">
                         <Input
                           value={item.name}
                           onChange={(e) => updateItemName(index, e.target.value)}
-                          className="flex-1"
+                          className="mb-1 h-8 text-sm"
+                          disabled={!item.confirmed}
                         />
-                        <span className="text-sm text-muted-foreground whitespace-nowrap">{item.category}</span>
+                        <div className="flex items-center justify-between">
+                          <p className="text-xs text-muted-foreground">{item.category}</p>
+                          {(item.price || item.quantity) && (
+                            <p className="text-xs text-muted-foreground">
+                              {item.quantity && `${item.quantity} `}
+                              {item.price && `$${item.price}`}
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-end mt-4">
-                    <Button onClick={handleConfirmItems} className="bg-accent hover:bg-accent/90">
-                      Add {extractedItems.filter(i => i.confirmed).length} Items
-                    </Button>
-                  </div>
-                </ProxCardContent>
-              </ProxCard>
-            )}
+                    </div>
+                  ))
+                )}
+              </ProxCardContent>
+            </ProxCard>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3">
+              <Button
+                variant="outline"
+                onClick={resetUpload}
+                className="flex-1 h-12"
+              >
+                Try Again
+              </Button>
+              <Button
+                onClick={handleConfirmItems}
+                className="flex-1 h-12 bg-accent hover:bg-accent/90"
+                disabled={extractedItems.filter(item => item.confirmed).length === 0}
+              >
+                Add {extractedItems.filter(item => item.confirmed).length} Items
+              </Button>
+            </div>
           </div>
         )}
       </div>

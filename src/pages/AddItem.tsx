@@ -5,12 +5,11 @@ import { Button } from '@/components/ui/button';
 import { ProxCard, ProxCardContent } from '@/components/ProxCard';
 import { ManualEntry } from '@/components/add-item/ManualEntry';
 import { PhotoUpload } from '@/components/add-item/PhotoUpload';
-import { ScanReceipt } from '@/components/add-item/ScanReceipt';
 import { useAuth } from '@/contexts/AuthContext';
 import { useGuestStore } from '@/stores/guestStore';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
+import { ScanReceipt } from '@/components/add-item/ScanReceipt';
 type AddItemMode = 'select' | 'manual' | 'photo' | 'receipt';
 
 export function AddItem() {
@@ -22,7 +21,9 @@ export function AddItem() {
 
   const handleBack = () => {
     if (mode === 'select') {
+      
       navigate('/home');
+      
     } else {
       setMode('select');
     }
@@ -96,11 +97,15 @@ export function AddItem() {
   }
 
   if (mode === 'receipt') {
+    // Placeholder for receipt scanning - will implement later
     return (
-      <ScanReceipt
-        onBack={handleBack}
-        onSuccess={handleItemSuccess}
-      />
+      <div className="min-h-screen bg-gradient-background flex items-center justify-center">
+        <ProxCard className="max-w-md mx-4">
+          <ProxCardContent className="text-center py-12">
+          <ScanReceipt onBack={handleBack} onSuccess={handleItemSuccess} />
+          </ProxCardContent>
+        </ProxCard>
+      </div>
     );
   }
 
@@ -159,10 +164,11 @@ export function AddItem() {
         </ProxCard>
 
         {/* Receipt Scanning */}
-        <ProxCard className="hover:shadow-medium transition-all cursor-pointer opacity-60" onClick={() => setMode('receipt')}>
+        <ProxCard className="hover:shadow-medium transition-all cursor-pointer" onClick={() => setMode('receipt')}>
           <ProxCardContent className="flex items-center p-6">
-            <div className="w-12 h-12 bg-primary/10 rounded-prox flex items-center justify-center mr-4">
-              <Receipt className="h-6 w-6 text-primary" />
+
+            <div className="w-12 h-12 bg-highlight/10 rounded-prox flex items-center justify-center mr-4">
+              <Receipt className="h-6 w-6 text-highlight" />
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-foreground mb-1">
