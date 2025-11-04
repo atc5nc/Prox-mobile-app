@@ -2,11 +2,16 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { UiProvider } from '@/contexts/UiContext';
 import { Toaster } from '@/components/ui/toaster';
 import { Welcome } from '@/pages/Welcome';
 import { Auth } from '@/pages/Auth';
 import { Home } from '@/pages/Home';
 import { AddItem } from '@/pages/AddItem';
+import { ExpiringSoon } from '@/pages/ExpiringSoon';
+import { DealSearch } from './pages/DealSearch';
+import { Households } from '@/components/home/households/households';
+import { Settings } from '@/components/home/settings/Settings';
 import { useGuestStore } from '@/stores/guestStore';
 
 const queryClient = new QueryClient();
@@ -79,8 +84,36 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route path="/expiring-soon" element={<div className="min-h-screen bg-gradient-background flex items-center justify-center"><p>Expiring Soon - Coming Soon</p></div>} />
-      <Route path="/settings" element={<div className="min-h-screen bg-gradient-background flex items-center justify-center"><p>Settings - Coming Soon</p></div>} />
+      <Route
+        path="/home/households"
+        element={
+          <ProtectedRoute>
+            <Households />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/expiring-soon"
+        element={
+          <ProtectedRoute>
+            <ExpiringSoon />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/home/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/deal-search"
+        element={
+            <DealSearch />
+        }
+      />
     </Routes>
   );
 }
@@ -89,12 +122,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gradient-background">
-            <AppRoutes />
-            <Toaster />
-          </div>
-        </Router>
+        <UiProvider>
+          <Router>
+            <div className="min-h-screen bg-gradient-background">
+              <AppRoutes />
+              <Toaster />
+            </div>
+          </Router>
+        </UiProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
